@@ -14,15 +14,15 @@ using string = std::string; //caso precise mudar o tipo para std::string
 class User
 {
 private:
-    string UserID;
-    string Gender;
-    string Age;
-    string Occupation;
-    string ZipCode;
+    string userID;
+    string gender;
+    string age;
+    string occupation;
+    string zipCode;
 
 public:
     User() = default;
     void imprimir();
-    User(std::initializer_list<string> init);
+
     User(std::vector<string> vec);
 };
