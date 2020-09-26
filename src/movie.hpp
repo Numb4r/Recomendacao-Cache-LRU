@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#pragma once
 using string = std::string;
 class Movie
 {
