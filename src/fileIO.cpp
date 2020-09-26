@@ -1,9 +1,9 @@
 #include "fileIO.hpp"
-std::vector<char *> getInfoFile(const char *nameFile)
+std::vector<std::string> getInfoFile(const char *nameFile)
 {
-    std::vector<char *> vecAux;
+    std::vector<std::string> vecAux;
     std::ifstream file{nameFile};
-    char *lineFile;
+    std::string lineFile;
     while (file.good())
     {
         file >> lineFile;
