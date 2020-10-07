@@ -1,11 +1,9 @@
+#pragma once
 /*
->Essa lista e uma lista encabecada,ou seja,seu indice internamente se inicia em 1;
->Essa lista e inversamente linkada 
+>Essa lista e uma lista encabecada
+>Essa lista e duplamente encadeada
 */
-/*
-Eu deveria usar smart pointer para o problema de alocacao
-mas nao irei,pq e mais divertido ver meu eu do futuro sofrer com memory leak
-*/
+
 
 template <typename T>
 struct node
@@ -21,7 +19,6 @@ private:
     int length{0};
     node<T> *HEAD;
     node<T> *TAIL;
-    node<T> *iterator;
 
 public:
     node<T> *head();
@@ -30,6 +27,34 @@ public:
     void push_back(T data);
     void pop_back();
     List();
+    // prevent shallow copy
+    List(const List &obj); //Copy constructor
+    List(const List &&obj); //Move constructor
+    // List<T> &operator=(const List &obj); //Copy assignment
+    // List<T> &operator=(const List &&obj); //Move assignment
+
+    // List<T> &operator=(const List &obj){
+    //     if(this != &obj){
+    //         delete HEAD;
+    //         delete TAIL;
+    //         HEAD = new node<T>(obj.HEAD);
+    //         TAIL = new node<T>(obj.TAIL);
+    //         length = obj.length;
+    //     }
+    //     return *this;
+
+    // }
+
+    // List<T> &operator=(const List &&obj){
+    //     if(this != &obj){
+    //         delete HEAD;
+    //         delete TAIL;
+    //         HEAD = obj.HEAD;
+    //         TAIL = obj.TAIL;
+    //         length = obj.length;
+    //     }
+    //     return *this;
+    // }
     ~List();
 };
 template <typename T>
@@ -75,6 +100,22 @@ template <typename T>
 node<T> *List<T>::tail()
 {
     return TAIL;
+}
+//Shallow Copy prevent
+template <typename T>
+List<T>::List(const List<T> &obj){
+    
+    HEAD = new node<T>(*obj.HEAD);
+    TAIL = new node<T>(*obj.TAIL);
+    length = obj.length;
+}
+template <typename T>
+List<T>::List(const List<T> &&obj){
+    HEAD = obj.HEAD;
+    TAIL = obj.TAIL;
+    obj.HEAD = nullptr;
+    obj.TAIL = nullptr;
+    length = obj.length;
 }
 
 template <typename T>
