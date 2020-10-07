@@ -29,7 +29,7 @@ public:
     List();
     // prevent shallow copy
     List(const List &obj); //Copy constructor
-    List(const List &&obj); //Move constructor
+    List(List &&obj); //Move constructor
     // List<T> &operator=(const List &obj); //Copy assignment
     // List<T> &operator=(const List &&obj); //Move assignment
 
@@ -110,7 +110,7 @@ List<T>::List(const List<T> &obj){
     length = obj.length;
 }
 template <typename T>
-List<T>::List(const List<T> &&obj){
+List<T>::List( List<T> &&obj){
     HEAD = obj.HEAD;
     TAIL = obj.TAIL;
     obj.HEAD = nullptr;
