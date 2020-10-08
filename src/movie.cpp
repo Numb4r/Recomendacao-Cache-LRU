@@ -1,4 +1,5 @@
 #include "movie.hpp"
+#include <iostream>
 #include <cstring>
 Movie MakeMovie(const char *text, const char *tokens)
 {
@@ -18,4 +19,11 @@ Movie MakeMovie(const char *text, const char *tokens)
     m.Genres = new char[strlen(pch)+1];
     strcpy(m.Genres,pch);
     return m;
+}
+void PrintMovie(const Movie movie){
+    std::cout
+    << "MovieID: "      << movie.MovieId<<" "
+    << "\nTitle: "      << movie.Title<<" "
+    << "\nGenres: "     << movie.Genres<<" "
+    <<std::endl;
 }
