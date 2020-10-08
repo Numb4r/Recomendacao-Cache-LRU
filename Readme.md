@@ -6,10 +6,10 @@ make
 make run
 ```
 # Base de dados
-Foi utilizado para teste uma base de dados sintetica disponibilizada pela grouplens da Univesity of Minnesota. Para fazer download dela clique [aqui](http://files.grouplens.org/datasets/movielens/ml-1m.zip).
+Foi utilizado para teste uma base de dados sintetica disponibilizada pela grouplens da University of Minnesota. Para fazer download dela clique [aqui](http://files.grouplens.org/datasets/movielens/ml-1m.zip).
 
 Extraia ela na raiz do programa.
-Para a documentacao da base veja [DOC](), ou seja a propria documentacao da base de dados.
+Para a documentacao nao oficial da base veja [DOC](https://github.com/Numb4r/Recomendacao-Cache-LRU/Doc.md).
 ```
 Recomendacao-Cache-LRU
  ┣ ml-1m
