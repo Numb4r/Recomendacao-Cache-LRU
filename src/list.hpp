@@ -1,4 +1,6 @@
 #pragma once
+#include <functional>
+#include <iostream>
 /*
 >Essa lista e uma lista encabecada
 >Essa lista e duplamente encadeada
@@ -23,7 +25,8 @@ private:
 public:
     node<T> *head();
     node<T> *tail();
-    int size();
+    int size() const;
+    void printFullList(std::function<void(const T)>printfunc) const;
     void push_back(T data);
     void pop_back();
     List();
@@ -70,6 +73,7 @@ List<T>::List()
 template <typename T>
 void List<T>::push_back(const T data)
 {
+    // PrintUser(data);
     node<T> *Nd = new node<T>();
     Nd->data = data;
     TAIL->next = Nd;
@@ -87,9 +91,20 @@ void List<T>::pop_back()
 }
 
 template <typename T>
-int List<T>::size()
+int List<T>::size() const
 {
     return length;
+}
+template< typename T>
+void List<T>::printFullList(std::function<void(const T)> printfunc) const{
+    node <T> *nd = HEAD->next;
+    while (nd!=nullptr)
+    {
+        printfunc(nd->data);
+        nd = nd->next;
+    }
+    
+
 }
 template <typename T>
 node<T> *List<T>::head()
