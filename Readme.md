@@ -42,7 +42,8 @@ Pessoa MakePessoa(const char* str,const char* token){
 }
 ```
 Apos isso, sera possivel utilizar a funcao `fillList` que fara a montagem da lista.
-A funcao fillList tem como parametro o caminho do arquivo,o token e um std::function que e construida pela funcao `Make` da struct.
+A funcao fillList tem como parametro o caminho do arquivo,o token e uma funcao para construir a struct.
+A funcao `Makestruct` deve ter como parametro dois `const char*`, um para frase a ser tokenizada e outro para o token.
 ```
-List<typeStruct> list(fillList("path","tk",std::function<typeStruct(const char*,const char*)>)(MakeStruct));
+List<typeStruct> list(fillList("path","tk",MakeStruct);
 ```
