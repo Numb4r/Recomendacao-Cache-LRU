@@ -23,3 +23,11 @@ Rating MakeRating(const char *text, const char *tokens)
     strcpy(r.timeStamp,pch);
     return r;
 }
+void PrintRating(const Rating rating){
+     std::cout
+    << "MovieID: "      << rating.movieId<<" "
+    << "\nUserId: "     << rating.userId<<" "
+    << "\nRating: "     << rating.rating<<" "
+    << "\ntimeStamp: "  << rating.timeStamp
+    <<std::endl;
+}
