@@ -8,20 +8,14 @@ Movie MakeMovie(const char *text, const char *tokens)
 
     char *pch = strtok(str, tokens);
 
-    m.MovieId = pch;
+    m.MovieId = new char[strlen(pch)+1];
+    strcpy(m.MovieId,pch);
     pch = strtok(NULL, tokens);
-    m.Title = pch;
+    m.Title = new char[strlen(pch)+1];
+    strcpy(m.Title,pch);
 
     pch = strtok(NULL, tokens);
-
-    m.Genres = pch;
+    m.Genres = new char[strlen(pch)+1];
+    strcpy(m.Genres,pch);
     return m;
 }
-// #include <iostream>
-// Movie::Movie(std::vector<string> vec) : MovieId(vec[0]), Title(vec[1]), Genres(vec[2])
-// {
-// }
-// void Movie::imprimir() const
-// {
-//     std::cout << MovieId << "." << Title << "." << Genres << "." << std::endl;
-// }
