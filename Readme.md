@@ -47,3 +47,12 @@ A funcao `Makestruct` deve ter como parametro dois `const char*`, um para frase 
 ```
 List<typeStruct> list(fillList("path","tk",MakeStruct);
 ```
+Para "printar" os dados da lista, sera necessario implementar uma funcao de que receba a struct e faca a escrita.
+```
+void PrintStruct(const Struct st);
+```
+Apos isso, e possivel usar o metodo da lista  chamado `printFullList` passando por parametro essa funcao
+
+```
+list.printFullList(PrintStruct)
+```
