@@ -7,9 +7,9 @@ List <T> fillList(const char* fileName,const char* token,std::function<T(const c
     std::ifstream file{fileName};
     std::cout << file.good() << std::endl;
     std::string s;
-    while (file >> s)
+    
+    while (std::getline(file,s))
     {
-
         list.push_back(MakerT(s.c_str(), token));
     }
     file.close();
