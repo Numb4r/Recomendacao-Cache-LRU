@@ -9,11 +9,12 @@ Rating MakeRating(const char *text, const char *tokens)
     strcpy(str, text);
 
     char *pch = strtok(str, tokens);
-    r.movieId = new char[strlen(pch)+1];
-    strcpy(r.movieId,pch);
-    pch = strtok(NULL, tokens);
     r.userId = new char[strlen(pch)+1];
     strcpy(r.userId,pch);
+
+    pch = strtok(NULL, tokens);
+    r.movieId = new char[strlen(pch)+1];
+    strcpy(r.movieId,pch);
 
     pch = strtok(NULL, tokens);
     r.rating = new char[strlen(pch)+1];
@@ -25,8 +26,8 @@ Rating MakeRating(const char *text, const char *tokens)
 }
 void PrintRating(const Rating rating){
      std::cout
-    << "MovieID: "      << rating.movieId<<" "
-    << "\nUserId: "     << rating.userId<<" "
+    << "UserId: "     << rating.userId<<" "
+    << "\nMovieID: "      << rating.movieId<<" "
     << "\nRating: "     << rating.rating<<" "
     << "\ntimeStamp: "  << rating.timeStamp
     <<std::endl;
