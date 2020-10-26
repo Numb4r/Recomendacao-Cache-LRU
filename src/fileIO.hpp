@@ -1,19 +1,111 @@
 #include "list.hpp"
 #include <fstream>
+#include <vector>
 #include <functional>
-template<typename T>
-List <T> fillList(const char* fileName,const char* token,std::function<T(const char*,const char*)> MakerT){
-    List<T> list;
-    std::ifstream file{fileName};
-    std::cout << file.good() << std::endl;
-    std::string s;
+#pragma once
+// template<typename T>
+// ctn::List <T> fillList(const char* fileName,const char* token,std::function<T(const char*,const char*)> MakerT){
+//     ctn::List<T> list;
+//     std::ifstream file{fileName};
+//     std::cout << file.good() << std::endl;
+//     std::string s;
     
-    while (std::getline(file,s))
-    {
-        list.push_back(MakerT(s.c_str(), token));
+//     while (std::getline(file,s))
+//     {
+//         list.push_back(MakerT(s.c_str(), token));
+//     }
+//     file.close();
+//     return std::move(list);
+// }
+/*
+TODO:
+tentar uma list<list<rating[movieid,rating(pair?)]>> pra formar uma matriz de fatoracao
+*(sem necessidade de carregar o arquivo de usuarios e filmes no primeiro momento)
+cada linha sera um usuario
+cada usuario tera uma lista (linha da matriz(item da lista mae)) que contem o id do filme e o rating(isso sera mais facil de achar o id do filme em questao)
+
+(id,rating)
+
+(20,5)  (30,3)  (500,1) (120,4)
+(12,1)  (500,5) (40,3)  
+
+*/
+struct itemMatriz{
+    unsigned int MovieId;
+    unsigned short rating;
+    itemMatriz()=default;
+    itemMatriz(unsigned int MovieId,unsigned short rating):MovieId(MovieId),rating(rating){};
+};
+std::vector<std::vector<itemMatriz>> MatrizFatoracao(const char* fileName){
+    std::vector<std::vector<itemMatriz>> list;
+    std::vector<itemMatriz> linha;
+
+    FILE* file;
+    if(!(file = fopen(fileName,"r"))){
+        std::cerr<<"Erro ao abrir o arquivo"<<std::endl;
+        return list;
     }
-    file.close();
+    int userAtual{},userComparacao{1},movieId{},rating{},dumb; 
+    while(!feof(file))
+    {   
+        fscanf(file,"%d::%d::%d::%d",&userAtual,&movieId,&rating,&dumb);
+        if(userAtual != userComparacao){
+            userComparacao = userAtual;
+            list.push_back(linha);
+            linha.clear();
+        }
+        linha.push_back(itemMatriz(movieId,rating));
+    }
+    list.push_back(linha);
+    fclose(file);
     return std::move(list);
 }
+ctn::List<itemMatriz> UserRatings(const char* fileName,const unsigned short minimoRating = 1){
+    ctn::List<itemMatriz> user;
+    FILE * file;
+    if(!(file = fopen(fileName,"r"))){
+        std::cerr<<"Error ao abrir o arquivo"<<std::endl;
+        return user;
+    }
+    int dumb{},movieId{},rating{};
+    while (!feof(file))
+    {
+        fscanf(file,"%d::%d::%d::%d",&dumb,&movieId,&rating,&dumb);
+        if (rating >= minimoRating)
+        {
+            user.push(itemMatriz(movieId,rating));
+        }
+        
+    }
+    fclose(file);
+    return std::move(user);
+}
+// ctn::List<ctn::List<itemMatriz>> MatrizFatoracao(const char* fileName){
+//     ctn::List<ctn::List<itemMatriz>> list;
+//     ctn::List<itemMatriz> linha;
+
+//     FILE* file;
+//     if(!(file = fopen(fileName,"r"))){
+//         std::cerr<<"Erro ao abrir o arquivo"<<std::endl;
+//         return list;
+//     }
+//     int userAtual{},userComparacao{1},movieId{},rating{},dumb; 
+//     while(!feof(file))
+//     {   
+//         fscanf(file,"%d::%d::%d::%d",&userAtual,&movieId,&rating,&dumb);
+//         if(userAtual != userComparacao){
+//             userComparacao = userAtual;
+//             list.push(linha);
+//             linha.clear();
+//         }
+//         itemMatriz it;
+//         it.MovieId = movieId;
+//         it.rating = rating;
+//         linha.push(it);
+//     }
+//     list.push(linha);
+//     fclose(file);
+//     return list;
+// }
 
 
