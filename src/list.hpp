@@ -8,6 +8,8 @@ struct node
             T data;
             struct node *next;
             struct node *previous;
+            node(T data,struct node *previous,struct node *next) : data(data),previous(previous),next(next){}
+            node() = default;
         };
 namespace ctn
 {
@@ -20,8 +22,12 @@ namespace ctn
         node<T> *TAIL;
 
     public:
-        node<T> *head();
-        node<T> *tail();
+        node<T> *head(){
+            return HEAD->next;
+        }
+        node<T> *tail(){
+            return TAIL;
+        }
         int size() const{
             return length;
         }
@@ -32,12 +38,15 @@ namespace ctn
             node <T> *nd = HEAD;
             while (nd=nd->next , nd != TAIL->next){printfunc(nd->data);}
         }
+        /*
+        TODO: Arrumar push/pop pro construtor do node
+        */
         virtual void push(T data){
         
-            node<T> *Nd = new node<T>();
-            Nd->data = data;
+            node<T> *Nd = new node<T>(data,TAIL,nullptr);
+            // Nd->data = data;
             TAIL->next = Nd;
-            Nd->previous = TAIL;
+            // Nd->previous = TAIL;
             TAIL = Nd;
             ++length;
         }
