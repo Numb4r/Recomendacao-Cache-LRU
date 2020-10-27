@@ -38,16 +38,9 @@ namespace ctn
             node <T> *nd = HEAD;
             while (nd=nd->next , nd != TAIL->next){printfunc(nd->data);}
         }
-        /*
-        TODO: Arrumar push/pop pro construtor do node
-        */
-        virtual void push(T data){
-        
-            node<T> *Nd = new node<T>(data,TAIL,nullptr);
-            // Nd->data = data;
-            TAIL->next = Nd;
-            // Nd->previous = TAIL;
-            TAIL = Nd;
+        virtual void push(const T data){
+            TAIL->next = new node<T>(data,TAIL,nullptr);
+            TAIL = TAIL->next;
             ++length;
         }
         virtual void pop(){
@@ -57,6 +50,7 @@ namespace ctn
             length--;
         }
         void clear(){
+            std::cout<<"Clear\n";
             while (TAIL != HEAD)
             {
                 this->pop();
@@ -76,46 +70,60 @@ namespace ctn
         }
 
         List(){
-            node<T> *Node = new node<T>();
-            Node->data = T();
-            Node->next = nullptr;
-            Node->previous = nullptr;
-            HEAD = Node;
-            TAIL = Node;
+            node<T> *Node = new node<T>(T(),nullptr,nullptr);
+            HEAD = TAIL = Node;
         }
-        /*
-        TODO : Consetar copy constructor/assignment
-        */
         // prevent shallow copy
         List(const List &obj) //Copy constructor
         {
-            std::cout<<"&obj"<<std::endl;
-            HEAD = new node<T>(*obj.HEAD);
-            TAIL = new node<T>(*obj.TAIL);
-            length = obj.length;
+            std::cout<<"&obj\n";
+            if (obj.HEAD == nullptr || obj.HEAD->next == nullptr)
+            {
+                std::cout<<"Empty\n";
+                List();
+            }else{
+                HEAD = new node<T>(*obj.HEAD);
+                node<T> *nd = obj.HEAD->next;
+                node<T> *ndlist= HEAD;
+                while (nd != obj.TAIL->next)
+                {
+                    // std::cout<<nd->data<<"\n";
+                    ndlist->next = new node<T>(nd->data,ndlist,nullptr);
+                    ndlist = ndlist->next;
+                    nd = nd->next;
+
+                }
+                TAIL = ndlist;
+                length = obj.length;
+                
+            }
+            
         }
         List(List &&obj) //Move constructor
         {      
+            std::cout<<"&&obj"<<std::endl;
+
             HEAD = obj.HEAD;
             TAIL = obj.TAIL;
-            obj.HEAD = nullptr;
-            obj.TAIL = nullptr;
+            obj.HEAD = obj.TAIL = nullptr;
             length = obj.length;
         }
 
-         List<T> &operator=(const List &obj){//Copy assignment
-            if(this != &obj){
-                delete HEAD;
-                delete TAIL;
-                HEAD = new node<T>(obj.HEAD);
-                TAIL = new node<T>(obj.TAIL);
-                length = obj.length;
-            }
-            return *this;
+        //  List<T> &operator=(const List &obj){//Copy assignment
+        //     std::cout<<"&obj\n";
+        //     if(this != &obj){
+        //         delete HEAD;
+        //         delete TAIL;
+        //         HEAD = new node<T>(obj.HEAD);
+        //         TAIL = new node<T>(obj.TAIL);
+        //         length = obj.length;
+        //     }
+        //     return *this;
 
-        }
+        // }
 
         List<T> &operator=(const List &&obj){//Move assignment
+        std::cout<<"&&obj\n";
             if(this != &obj){
                 delete HEAD;
                 delete TAIL;
@@ -126,14 +134,18 @@ namespace ctn
             return *this;
         }
         ~List(){
+            std::cout<<"~List()"<<std::endl;
             while (TAIL != nullptr)
             {
-                this->pop();
+                node<T> *Nd = TAIL;
+                TAIL = TAIL->previous;
+                delete Nd;
             }
         }
     };
-
+      
 } // namespace ctn
+
 
 
 
