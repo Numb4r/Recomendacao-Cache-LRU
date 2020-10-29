@@ -1,4 +1,3 @@
-
 #pragma once
 #include "list.hpp"
 
@@ -8,19 +7,27 @@ namespace ctn
     class Stack : public List<T>
     {
     public:
-        Stack() : List<T>(){}
         void push(const T data)override {
-            node<T> *n = new node<T>;
-            n->data = data;
-            n->next = this->HEAD->next;
-            this->HEAD->next = n;
+            if(this->isEmpty()){
+                this->HEAD = this->TAIL = new node <T>(data);
+            }else
+            {
+                this->HEAD->previous = new node<T>(data,nullptr,this->HEAD)    ;
+                this->HEAD = this->HEAD->previous;
+            }
             this->length++;
         }
         void pop()override{
-            node<T> *n = this->HEAD->next;
-            this->HEAD->next = this->HEAD->next->next;
-            this->length--;
-            delete n;
+            if(this->HEAD!=nullptr){
+                node<T> *nd = this->HEAD;
+                this->HEAD = this->HEAD->next;
+                delete nd;
+                nd = nullptr;
+                if(this->HEAD==nullptr)
+                    this->TAIL=nullptr;    
+                this->length--;
+                
+            }
         }
         
     };
