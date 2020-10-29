@@ -36,36 +36,33 @@ namespace ctn
         */
         void show(std::function<void(const T)>printfunc) const{
             node <T> *nd = HEAD;
-            while (nd=nd->next , nd != TAIL->next){printfunc(nd->data);}
+            while (nd != TAIL->next){printfunc(nd->data);nd=nd->next;}
         }
         /*
         1 - First item
         0 - n item
         -1 - error
         */
-        virtual bool push(const T data){
+        virtual void push(const T data){
 
             if(isEmpty()){
                 HEAD = TAIL = new node<T>(data);
-                std::cout<<"Is emtpy,first\n";
-                ++length;
+                // std::cout<<"Is emtpy,first\n";
 
-                return 1;
+                
             }else{
                 TAIL->next = new node<T>(data,TAIL,nullptr);
                 TAIL = TAIL->next;
-                std::cout<<"Not empty "<<(TAIL->previous==HEAD ? 1 : 0)<<"\n";
-                ++length;
-
-                return 0;
+                // std::cout<<"Not empty "<<(TAIL->previous==HEAD ? 1 : 0)<<"\n";
             }
                 
+                ++length;
         }
         
         bool isEmpty(){
             return HEAD==nullptr||TAIL==nullptr;
         }
-        virtual bool pop(){
+        virtual void pop(){
             if (TAIL!=nullptr)
             {
                 // std::cout<<"not Empty(pop) : "<<(TAIL==HEAD ? 1 : 0)<<"\t";
@@ -77,26 +74,24 @@ namespace ctn
                     HEAD=nullptr;
                 // std::cout<<(TAIL==nullptr ? 1 : 0)<<"\n";
                 length--;
-                return 0;
             }
-            return 1;
+            
         }
         void clear(){
-            
-            while (TAIL!=nullptr)
+            while (HEAD!=nullptr)
             {
-                node<T>* nd = TAIL;
-                TAIL = TAIL->previous;
-                delete nd;  
+                node<T> *nd = HEAD;
+                HEAD = HEAD->next;
+                delete nd;
                 nd = nullptr;
-                length--; 
+                length--;
             }
             
             HEAD = TAIL = nullptr;
             
         }
         T front(){
-            return HEAD->next->data;
+            return HEAD->data;
         }
         T back(){
             return TAIL->data;
@@ -108,18 +103,14 @@ namespace ctn
             return this->HEAD == obj.HEAD && this->TAIL == obj.TAIL ? false : true;
         }
 
-        List():HEAD(nullptr),TAIL(nullptr),length(0){
-            std::cout<<"Default()\n"<<
-            (HEAD==nullptr ? 1 : 0) << "-"<< (TAIL==nullptr ? 1 : 0 )<<"\n";
-
-        }
+        List():HEAD(nullptr),TAIL(nullptr),length(0){}
         // prevent shallow copy
         List(const List &obj) //Copy constructor
         {
-            std::cout<<"&obj\n";
+            // std::cout<<"&obj\n";
             if (obj.HEAD == nullptr)
             {
-                std::cout<<"Empty\n";
+                // std::cout<<"Empty\n";
                 HEAD = TAIL = nullptr;
             }else{
                 HEAD = new node<T>(*obj.HEAD);
@@ -141,7 +132,7 @@ namespace ctn
         }
         List(List &&obj) //Move constructor
         {      
-            std::cout<<"&&obj"<<std::endl;
+            // std::cout<<"&&obj"<<std::endl;
             HEAD = obj.HEAD;
             TAIL = obj.TAIL;
             obj.HEAD = obj.TAIL = nullptr;
@@ -149,8 +140,8 @@ namespace ctn
         }
 
          List<T> &operator=(const List &obj){//Copy assignment
-            std::cout<<"&obj\n";
-            if(this != &obj && obj.HEAD == nullptr){
+            // std::cout<<"&obj\n";
+            if(this != &obj && obj.HEAD != nullptr){
                 clear();
                 HEAD = new node<T>(*obj.HEAD);
                 node<T> *nd = obj.HEAD->next;
@@ -168,11 +159,12 @@ namespace ctn
         }
 
         List<T> &operator=(const List &&obj){//Move assignment
-            std::cout<<"&&obj\n";
-            if(this != &obj){
+            // std::cout<<"&&obj\n";
+            if(this != &obj && obj.HEAD != nullptr){
                 clear();
                 HEAD = obj.HEAD;
                 TAIL = obj.TAIL;
+                obj.HEAD = obj.TAIL = nullptr;
                 length = obj.length;
             }
             return *this;
