@@ -34,9 +34,12 @@ namespace ctn
         /*
         TODO:Corrigir essa funcao quando a classe Stack faz o call
         */
-        void show(std::function<void(const T)>printfunc) const{
-            node <T> *nd = HEAD;
-            while (nd != TAIL->next){printfunc(nd->data);nd=nd->next;}
+        void show(std::function<void(const T)>printfunc,int NumeroLinhas = 0) const{
+                node <T> *nd = HEAD;
+            if(NumeroLinhas != 0)
+                while (nd != nullptr && NumeroLinhas>0){printfunc(nd->data);nd=nd->next;NumeroLinhas--;}
+            else
+                while (nd != nullptr){printfunc(nd->data);nd=nd->next;}
         }
         /*
         1 - First item
@@ -48,8 +51,6 @@ namespace ctn
             if(isEmpty()){
                 HEAD = TAIL = new node<T>(data);
                 // std::cout<<"Is emtpy,first\n";
-
-                
             }else{
                 TAIL->next = new node<T>(data,TAIL,nullptr);
                 TAIL = TAIL->next;
@@ -58,7 +59,18 @@ namespace ctn
                 
                 ++length;
         }
-        
+        template<typename TypeCtn>
+        TypeCtn transfer(int N){          
+            TypeCtn aux;
+            node<T> *nd = this->HEAD;
+            while (nd!=nullptr && N > 0)
+            {
+                aux.push(nd->data);
+                nd = nd->next;
+                N--;
+            }
+            return std::move(aux);
+        }
         bool isEmpty(){
             return HEAD==nullptr||TAIL==nullptr;
         }
