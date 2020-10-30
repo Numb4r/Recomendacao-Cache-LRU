@@ -31,13 +31,16 @@ cada usuario tera uma lista (linha da matriz(item da lista mae)) que contem o id
 
 */
 struct itemMatriz{
+    unsigned int UserId;
     unsigned int MovieId;
     float rating;
     itemMatriz()=default;
     itemMatriz(unsigned int MovieId,unsigned short rating):MovieId(MovieId),rating(rating){};
+    itemMatriz(unsigned int MovieId,unsigned short rating,unsigned int UserId):MovieId(MovieId),rating(rating),UserId(UserId){};
+
 };
 /*
-std vector deixa 0.1s mais rapido
+std vector deixa 0.1s a 0.2s mais rapido
 >problema na implementacao da ctn::List
 */
 // std::vector<std::vector<itemMatriz>> MatrizFatoracao(const char* fileName){
@@ -88,7 +91,7 @@ ctn::List<ctn::List<itemMatriz>> MatrizFatoracao(const char* fileName){
             list.push(std::move(linha));
             linha.clear();
         }        
-        linha.push(itemMatriz(movieId,rating));
+        linha.push(itemMatriz(movieId,rating,userAtual));
     }
     list.push(std::move(linha));
     fclose(file);
