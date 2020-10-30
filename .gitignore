@@ -37,4 +37,4 @@ ml-1m
 build
 *.zip
 *.7z
-makezip.sh
+*.sh
