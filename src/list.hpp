@@ -31,9 +31,6 @@ namespace ctn
         int size() const{
             return length;
         }
-        /*
-        TODO:Corrigir essa funcao quando a classe Stack faz o call
-        */
         void show(std::function<void(const T)>printfunc,int NumeroLinhas = 0) const{
                 node <T> *nd = HEAD;
             if(NumeroLinhas != 0)
@@ -41,20 +38,13 @@ namespace ctn
             else
                 while (nd != nullptr){printfunc(nd->data);nd=nd->next;}
         }
-        /*
-        1 - First item
-        0 - n item
-        -1 - error
-        */
         virtual void push(const T data){
 
             if(isEmpty()){
                 HEAD = TAIL = new node<T>(data);
-                // std::cout<<"Is emtpy,first\n";
             }else{
                 TAIL->next = new node<T>(data,TAIL,nullptr);
                 TAIL = TAIL->next;
-                // std::cout<<"Not empty "<<(TAIL->previous==HEAD ? 1 : 0)<<"\n";
             }
                 
                 ++length;
@@ -77,14 +67,12 @@ namespace ctn
         virtual void pop(){
             if (TAIL!=nullptr)
             {
-                // std::cout<<"not Empty(pop) : "<<(TAIL==HEAD ? 1 : 0)<<"\t";
                 node<T> *Nd = TAIL;
                 TAIL = TAIL->previous;
                 delete Nd;
                 Nd = nullptr;
                 if(TAIL==nullptr)
                     HEAD=nullptr;
-                // std::cout<<(TAIL==nullptr ? 1 : 0)<<"\n";
                 length--;
             }
             
@@ -119,10 +107,8 @@ namespace ctn
         // prevent shallow copy
         List(const List &obj) //Copy constructor
         {
-            // std::cout<<"&obj\n";
             if (obj.HEAD == nullptr)
             {
-                // std::cout<<"Empty\n";
                 HEAD = TAIL = nullptr;
             }else{
                 HEAD = new node<T>(*obj.HEAD);
@@ -130,7 +116,6 @@ namespace ctn
                 node<T> *ndlist= HEAD;
                 while (nd != obj.TAIL->next)
                 {
-                    // std::cout<<nd->data<<"\n";
                     ndlist->next = new node<T>(nd->data,ndlist,nullptr);
                     ndlist = ndlist->next;
                     nd = nd->next;
@@ -144,7 +129,6 @@ namespace ctn
         }
         List(List &&obj) //Move constructor
         {      
-            // std::cout<<"&&obj"<<std::endl;
             HEAD = obj.HEAD;
             TAIL = obj.TAIL;
             obj.HEAD = obj.TAIL = nullptr;
@@ -152,7 +136,6 @@ namespace ctn
         }
 
          List<T> &operator=(const List &obj){//Copy assignment
-            // std::cout<<"&obj\n";
             if(this != &obj && obj.HEAD != nullptr){
                 clear();
                 HEAD = new node<T>(*obj.HEAD);
@@ -171,7 +154,6 @@ namespace ctn
         }
 
         List<T> &operator=(const List &&obj){//Move assignment
-            // std::cout<<"&&obj\n";
             if(this != &obj && obj.HEAD != nullptr){
                 clear();
                 HEAD = obj.HEAD;
