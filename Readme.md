@@ -25,34 +25,10 @@ Recomendacao-Cache-LRU
  ┣ Readme.md
  
 ```
-## Utilizando outra base de dados
-Para se usar uma outra base e necessario uma modelagem especifica para ela.
-Essa modelagem devera conter uma struct e uma funcao que sera responsavel pelo preenchimento da struct.
-Essa funcao de preenchimento devera ter como parametro uma `string` e o token e devera retornar a struct preenchida.
-### Exemplo:
-```
-struct Pessoa{
-    string nome,
-    string idade
-};
-Pessoa MakePessoa(const char* str,const char* token){
-    Pessoa p;
-    /* foo */
-    return p;
-}
-```
-Apos isso, sera possivel utilizar a funcao `fillList` que fara a montagem da lista.
-A funcao fillList tem como parametro o caminho do arquivo,o token e uma funcao para construir a struct.
-A funcao `Makestruct` deve ter como parametro dois `const char*`, um para frase a ser tokenizada e outro para o token.
-```
-List<typeStruct> list(fillList("path","tk",MakeStruct);
-```
-Para "printar" os dados da lista, sera necessario implementar uma funcao de que receba a struct e faca a escrita.
-```
-void PrintStruct(const Struct st);
-```
-Apos isso, e possivel usar o metodo da lista  chamado `printFullList` passando por parametro essa funcao
 
-```
-list.printFullList(PrintStruct)
-```
+
+## Criando um usuario para testes
+
+Para criar um usuario de testes deve se seguir o mesmo padrao do arquivo `rating.dat` da base de dados (UserID::MovieID::Rating::Timestamp).
+Para usar o arquivo basta colocar na mesma pasta que a base de dados com o nome de `dumb_user.dat`, ou passar como parametro de inicializacao do programa.
+
