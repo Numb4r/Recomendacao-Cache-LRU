@@ -3,8 +3,6 @@
 #include "list.hpp"
 #include "sorting.hpp"
 
-
-
 struct euclidian_score
 {
     ctn::List<itemMatriz> &linha;
@@ -25,13 +23,6 @@ float score(euclidian_score &e){
 }
 
 ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score> &Notas,int K){
-    /* First Try */
-    // sort::Selection<euclidian_score>(Notas,[](auto var1,auto var2)->bool{
-    //     return score(var1) > score(var2);
-    // });
-    // return Notas.transfer<ctn::Stack<euclidian_score>>(K);
-    /* Second Try */
-
     ctn::Queue<euclidian_score> aux;
     int min = score(Notas.head()->data);
     auto nd = Notas.head();
@@ -68,28 +59,6 @@ ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score
 
 }
 
-// euclidian_score CalcularDistanciaEuclidiana(std::vector<itemMatriz> &linha,ctn::List<itemMatriz> &User){
-//     int numeroDeFilmesSimilares{},numeroDeFilmesDiferentes;
-//     float distance{};
-//     /* Isso seria simplificado com hashmap
-//     nao precisaria iterar a linha inteira,apenas verificar a existencia de um elemento de hash X na linha
-//     */
-//     for (auto &i : linha)
-//     {
-//         for (auto k = User.head(); k != User.tail()->next; k=k->next)
-//         {
-//             if (i.MovieId == k->data.MovieId)
-//             {   
-//                 distance+=pow((i.rating-k->data.rating),2);
-//                 numeroDeFilmesSimilares++;
-//             }else{
-//                 numeroDeFilmesDiferentes++;
-//             }
-//         } // k
-//     } // j   
-//     distance= sqrt(distance);
-//     return std::move(euclidian_score(linha,numeroDeFilmesSimilares,distance));
-// }
 euclidian_score CalcularDistanciaEuclidiana(ctn::List<itemMatriz> &linha,ctn::List<itemMatriz> &User){
     int numeroDeFilmesSimilares{};
     long numeroDeFilmesDiferentes{};
@@ -109,8 +78,8 @@ euclidian_score CalcularDistanciaEuclidiana(ctn::List<itemMatriz> &linha,ctn::Li
             }else{
                 numeroDeFilmesDiferentes++;
             }
-        } // k
-    } // j   
+        } 
+    } 
     distance= sqrt(distance);
     return std::move(euclidian_score(linha,numeroDeFilmesSimilares,numeroDeFilmesDiferentes,distance));
 }
