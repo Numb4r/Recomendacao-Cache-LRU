@@ -53,7 +53,7 @@ ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score
     }
     
     sort::Selection<euclidian_score>(aux,[](euclidian_score var1,euclidian_score var2){
-        return score(var1) > score(var2);
+        return score(var1) < score(var2);
     });
     return aux.transfer<ctn::Stack<euclidian_score>>(K);
 
