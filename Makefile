@@ -1,5 +1,5 @@
 CXX	     := -g++
-CXXFLAGS := -w -std=c++14 -Wfatal-errors
+CXXFLAGS := -w -std=c++17 -Wfatal-errors
 LDFLAGS	 := -lstdc++ -lm
 BUILD 	 := ./build
 OBJ_DIR  := $(BUILD)/objects
