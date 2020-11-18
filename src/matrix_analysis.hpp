@@ -3,6 +3,7 @@
 #include "list.hpp"
 #include "sorting.hpp"
 
+
 struct euclidian_score
 {
     ctn::List<itemMatriz> &linha;
@@ -27,7 +28,7 @@ ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score
     int min = score(Notas.head()->data);
     auto nd = Notas.head();
     auto indexMin = Notas.head();
-    for (size_t i = 0; i < 20; i++)
+    for (size_t i = 0; i < K; i++)
     {        
         aux.push(nd->data);
         if(score(nd->data) < min){
@@ -56,16 +57,98 @@ ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score
         return score(var1) < score(var2);
     });
     return aux.transfer<ctn::Stack<euclidian_score>>(K);
+}
+
+/*Essa funcao e mal otimizada ja que nao usa hashmap.Too bad */
+ctn::List<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> melhoresUsuarios,const int K = 20){
+    ctn::List<itemMatriz> Filmes;
+    for (auto i = melhoresUsuarios.head(); i != nullptr; i=i->next)
+    {
+        for (auto j = i->data.linha.head(); j != nullptr; j=j->next)
+        {
+            Filmes.push(j->data);
+        }
+        
+    }
+    sort::Selection<itemMatriz>(Filmes,[](itemMatriz v1,itemMatriz v2)->bool{
+        return v1.MovieId > v2.MovieId;
+    });
+    ctn::List<itemMatriz> MelhoresFilmes;
+    int filmeAtual = Filmes.front().MovieId;
+    float totalValue{};
+    
+    for (auto i = Filmes.head(); i != nullptr; i=i->next)
+    {
+        if(i->data.MovieId == filmeAtual){
+            
+            totalValue+=i->data.rating;
+            // std::cout<< i->data.rating << " = "<<totalValue<<std::endl;
+        }else {
+
+            // std::cout<<">"<<filmeAtual<<" - "<<totalValue<<std::endl;
+            if (totalValue!=0)
+            
+                MelhoresFilmes.push(itemMatriz(filmeAtual,totalValue));
+                
+            
+            
+            totalValue = 0;
+            filmeAtual=i->data.MovieId;
+        }
+    }
+    sort::Selection<itemMatriz>(MelhoresFilmes,[](itemMatriz v1,itemMatriz v2){
+        return v1.rating > v2.rating;
+    });
+    // MelhoresFilmes.show([](itemMatriz i){
+    //     std::cout<<i.MovieId<<" - "<<i.rating<<std::endl;
+    // });
+    return MelhoresFilmes.transfer<ctn::List<itemMatriz>>(K);
+}
+/* Funcao com hashmap */
+#include <map>
+ctn::List<itemMatriz> EncontrarKMelhoresFilmesH(ctn::List<euclidian_score> melhoresUsuarios,const int K=20){
+    std::map<int,float> notaFilmes;
+    // ctn::List<itemMatriz> melhoresFilmes;
+    for (auto i = melhoresUsuarios.head(); i != nullptr; i=i->next)
+    {
+        for (auto j = i->data.linha.head(); j != nullptr; j=j->next)
+        {
+            if (notaFilmes.find(j->data.MovieId)!=notaFilmes.end())
+            {
+                notaFilmes.insert({j->data.MovieId,notaFilmes.at(j->data.MovieId)+j->data.rating});
+            }else{
+                notaFilmes.insert({j->data.MovieId,j->data.rating});
+            }
+            
+        }
+    }
+    itemMatriz *vet = new itemMatriz[notaFilmes.size()];
+    for (auto &&i : notaFilmes)
+    {
+        *vet++ = itemMatriz(i.first,i.second);
+    }
+
+    sort::Selection<itemMatriz>(vet,notaFilmes.size(),[](itemMatriz t1,itemMatriz t2){
+        return t1.rating > t2.rating;
+    });
+    
+    // for (auto &&i : notaFilmes)
+    // {
+    //     melhoresFilmes.push(itemMatriz(i.first,i.second));
+    // }
+    // /* Talvez de pra otimizar essa parte rolando o algoritimo mais acima no encontrar k usuarios. Too Bad */
+    // sort::Selection<itemMatriz>(melhoresFilmes,[](itemMatriz v1,itemMatriz v2){
+    //     return v1.rating > v2.rating;
+    // });
+        // return melhoresFilmes.transfer<ctn::List<itemMatriz>>(K);
 
 }
+/*---------------------------------------------------------*/
 
 euclidian_score CalcularDistanciaEuclidiana(ctn::List<itemMatriz> &linha,ctn::List<itemMatriz> &User){
     int numeroDeFilmesSimilares{};
     long numeroDeFilmesDiferentes{};
     float distance{};
-    /* Isso seria simplificado com hashmap
-    nao precisaria iterar a linha inteira,apenas verificar a existencia de um elemento de hash X na linha
-    */
     for(auto i=linha.head();i!=linha.tail()->next;i=i->next)
     {
         auto data = i->data;
