@@ -1,3 +1,4 @@
+#pragma once
 #include <cmath>
 #include "fileIO.hpp"
 #include "list.hpp"
@@ -22,7 +23,9 @@ struct euclidian_score
 float score(euclidian_score &e){
     return ((e.numeroDeFilmesSimilares/(1+(1*e.distance)))/(1+(1*e.distance)));
 }
-
+/* 
+TODO : Refatorar essa funcao com um metodo de ordenacao mais eficiente 
+*/
 ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score> &Notas,int K){
     ctn::Queue<euclidian_score> aux;
     int min = score(Notas.head()->data);
@@ -60,6 +63,7 @@ ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score
 }
 
 /*Essa funcao e mal otimizada ja que nao usa hashmap.Too bad */
+                            /* @deprecated */
 ctn::List<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> melhoresUsuarios,const int K = 20){
     ctn::List<itemMatriz> Filmes;
     for (auto i = melhoresUsuarios.head(); i != nullptr; i=i->next)
@@ -100,25 +104,26 @@ ctn::List<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> melhor
     // });
     return MelhoresFilmes.transfer<ctn::List<itemMatriz>>(K);
 }
-/* Funcao com hashmap */
-/*
-TODO: 
-- Verificar filmes que o usuario ja viu
-- Classificar de acordo com sua posicao na pilha (1/K * P [topo = K])
+/*=========================== @deprecated ===========================*/
 
-*/
+/* Funcao com hashmap */
+
 #include <map>
+/*
+FIX: 
+- Existe uma PEQUENA chance do topo da pilha ser lixo de memoria quando usado o metodo Quicksort.
+- Executando novamente corrige o problema
+*/
 
 ctn::List<itemMatriz> EncontrarKMelhoresFilmesH(ctn::List<euclidian_score> &melhoresUsuarios,ctn::List<itemMatriz> &User,const int &K = 20){
     std::map<int,float> notaFilmes,userFilmes;
     ctn::List<itemMatriz> melhoresFilmes;
-    // for (auto i = User.head() ; i != nullptr ; i=i->next)
-    // {
-    //     userFilmes.insert({i->data.MovieId,i->data.rating});
-    // }
-    // notaFilmes.insert({melhoresUsuarios.head()->data.linha.head()->data.MovieId,melhoresUsuarios.head()->data.linha.head()->data.rating});
-    // std::cout<<melhoresUsuarios.head()->data.linha.head()->data.rating<<std::endl;
-    // std::cout<<"Filme:"<<(notaFilmes.find(melhoresUsuarios.head()->data.linha.head()->data.MovieId)==notaFilmes.end() ? "1" : std::to_string(notaFilmes.at(melhoresUsuarios.head()->data.linha.head()->data.MovieId)))<<std::endl;
+    
+    for (auto i = User.head() ; i != nullptr ; i=i->next)
+    {
+        userFilmes.insert({i->data.MovieId,i->data.rating});
+            
+    }
     auto media = [K](float nota,float indice)->float{return (nota/K)*indice;};
     int posicaoPilha{};
 
@@ -127,60 +132,37 @@ ctn::List<itemMatriz> EncontrarKMelhoresFilmesH(ctn::List<euclidian_score> &melh
         for (auto j = i->data.linha.head(); j != nullptr; j=j->next)
         {
             
-            // if (userFilmes.find(j->data.MovieId)!=userFilmes.end())
-            // {
+            if (userFilmes.find(j->data.MovieId)==userFilmes.end())
+            {
                 if (notaFilmes.find(j->data.MovieId)!=notaFilmes.end())
-                {
-                    // std::cout<<"entrou  igual - "
-                    // <<notaFilmes.at(j->data.MovieId)
-                    // <<" + "<<j->data.rating
-                    // <<" = "<<notaFilmes.at(j->data.MovieId)+j->data.rating <<std::endl;
-
-                    notaFilmes.at(j->data.MovieId) += media(j->data.rating,posicaoPilha);
-                        // media(notaFilmes.at(j->data.MovieId)+j->data.rating,K-posicaoPilha)
-                        
-                }else{
-                    // std::cout<<"Entrou diferente - "<<j->data.rating<<std::endl;
-                    // notaFilmes.at(j->data.MovieId) = j->data.rating;
-
-                    notaFilmes.insert({
-                        j->data.MovieId,
-                        media(j->data.rating,posicaoPilha)
-                        // media(j->data.rating,K-posicaoPilha)
-                        });
-                }
-            // }
+                
+                    notaFilmes.at(j->data.MovieId) += media(j->data.rating,posicaoPilha);       
+                else
+                    notaFilmes.insert({j->data.MovieId,media(j->data.rating,posicaoPilha)});
+                
+            }
         }
         posicaoPilha++;
     }
-    // std::cout<<"Notas filmes:"<<notaFilmes.size()<<std::endl;
     itemMatriz *vet = new itemMatriz[notaFilmes.size()];
-    int j{};
+    int j{},max{},size_array{notaFilmes.size()};
+
     for (auto &&i : notaFilmes)
     {
         vet[j] = itemMatriz(i.first,i.second);
+        max = vet[j].rating > max ? vet[j].rating : max;
         j++;
     }
-
-    sort::Shell<itemMatriz>(vet,notaFilmes.size(),[](itemMatriz t1,itemMatriz t2){
-        return t1.rating < t2.rating;
-    });
-    // std::cout<<"K melhores filmes"<<std::endl;
-    for (size_t i = 0; i < K; i++)
-    {
-        melhoresFilmes.push(vet[i]);
-        // std::cout<<vet[i].MovieId<<"-"<<vet[i].rating<<std::endl;
-    }
-        
-    // for (auto &&i : notaFilmes)
-    // {
-    //     melhoresFilmes.push(itemMatriz(i.first,i.second));
-    // }
-    // /* Talvez de pra otimizar essa parte rolando o algoritimo mais acima no encontrar k usuarios. Too Bad */
-    // sort::Selection<itemMatriz>(melhoresFilmes,[](itemMatriz v1,itemMatriz v2){
-    //     return v1.rating > v2.rating;
+    // sort::Quick<itemMatriz>(vet,0,size_array,[](itemMatriz t1,itemMatriz t2){
+    //     return t1.rating >= t2.rating;
     // });
-        return melhoresFilmes.transfer<ctn::List<itemMatriz>>(K);
+    sort::radixsort(vet,size_array,max);
+
+    for (size_t i = size_array-1; i >size_array-K ; i--)
+    {
+        melhoresFilmes.push(vet[i]);   
+    }
+    return melhoresFilmes;
 
 }
 /*---------------------------------------------------------*/
