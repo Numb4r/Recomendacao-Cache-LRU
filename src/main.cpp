@@ -5,18 +5,17 @@
 #include "stack.hpp"
 #include "matrix_analysis.hpp"
 #include "Timer.hpp"
+#include <map>
 #define MATRIXFILENAME  "ml-1m/ratings.dat"
+#define MOVIESFILENAME  "ml-1m/movies.dat"
 #define USERFILENAME    "ml-1m/dumb_user.dat"
 #define K 20
 using Matrix = ctn::List<ctn::List<itemMatriz>> ;
-/*
-score =((i.numeroDeFilmesSimilares/(1+(1*i.distance)))/(1+(1*i.distance)))
-*/
+#include "sorting.hpp"
 int main(int argc, char const *argv[])
-{
-    
+{  
     const char* fileUserPath= argc >= 2 ? argv[1] : USERFILENAME;
-    // // std::vector<std::vector<itemMatriz>> o {MatrizFatoracao(MATRIXFILENAME)}; // 0.1s/0.2s mais rapido
+    // std::map<int,const char*> movies = MovieListHash(MOVIESFILENAME);
     Timer t;
     Matrix MatrixDeFatoracao{MatrizFatoracao(MATRIXFILENAME)} ;
     t.ShowResult("Construcao da matriz de fatoracao");
@@ -36,5 +35,13 @@ int main(int argc, char const *argv[])
         std::cout<<i.linha.front().UserId<<" - "<<i.numeroDeFilmesSimilares<<" - " <<i.numeroDeFilmesDiferentes<<" - "<< score(i)<<std::endl;
     });
     
+    t.Reset();
+    auto filmes= EncontrarKMelhoresFilmesH(PilhaMelhoresUsuarios,User,K);
+    t.ShowResult("Encontrar os K Melhores filmes por hash");
+    filmes.show([](itemMatriz i){
+        std::cout<<i.MovieId<<" - "<<i.rating<<std::endl;
+    });
+
+
     return 0;
 }
