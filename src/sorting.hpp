@@ -1,5 +1,8 @@
 #include "list.hpp"
+#include "matrix_analysis.hpp"
+
 #pragma once
+void CountSort(itemMatriz a[], int n, int exp);
 template <typename T>
 void swap(T &a,T &b){
     T aux{a};
@@ -10,7 +13,7 @@ template <typename T>
 int partition(T *array,int low,int high,std::function<bool(T var1,T var2)> cmpFunction){
     T pivot{array[high]};
     int i = (low -1);
-    for (int j = low; j < high-1; j++)
+    for (int j = low; j <= high-1; j++)
     {
         if(cmpFunction(array[j],pivot)){
             i++;
@@ -79,6 +82,9 @@ namespace sort
         
     }
 
+    /* 
+    TODO: Com problemas
+    */
     template<typename T>
     void Quick(T *array,int low,int high,std::function<bool(T var1,T var2)> cmpFunction){
         if(low < high){
@@ -89,13 +95,13 @@ namespace sort
     }
     template <typename T>
     void Shell(T *array,int size_array,std::function<bool(T var1,T var2)> cmpFunction){
-        for (size_t gap = size_array/2; gap > 0; gap/=2)
+        for (int gap = size_array/2; gap > 0; gap/=2)
         {
-            for (size_t i = gap; i < size_array; i++)
+            for (int i = gap; i < size_array; i++)
             {
                 int j{};
                 T temp = array[i];
-                for (j = i; j >= gap && cmpFunction(array[j-gap],temp); j-=gap)
+                for (j = i; j >= gap && cmpFunction(temp,array[j-gap]); j-=gap)
                     array[j] = array[j-gap];
                     
                 array[j] = temp;
@@ -103,4 +109,41 @@ namespace sort
             }
         }
     }
+    
+    /* Funcao exclusiva para o itemMatriz */
+    void radixsort(itemMatriz *a, int n,int max)
+    {
+    int exp, i{max};
+    
+    for (exp = 1; i/exp > 0; exp *= 10)
+        CountSort(a, n, exp);
+    }
+    
 } // namespace sort
+
+
+
+
+void CountSort(itemMatriz *a, int n, int exp)
+{  
+  itemMatriz result[n];
+   int i, count[10] = {0};
+ 
+  
+  for (i =0; i <n; i++)
+    count[static_cast<int>(a[i].rating / exp) % 10]++;
+ 
+  
+  for (i =1; i<10; i++)
+    count[i] += count[i-1];
+ 
+  
+  for (i =n-1; i>= 0; i--)
+  {
+    result[count[static_cast<int>(a[i].rating / exp) % 10] - 1] = a[i];
+    count[static_cast<int>(a[i].rating / exp) % 10]--;
+  }
+  for (i =0; i <n; i++)
+    a[i] = result[i];
+}
+ 
