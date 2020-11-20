@@ -38,3 +38,7 @@ build
 *.zip
 *.7z
 *.sh
+
+# spreedsheet
+*.pptx
+*.ods
