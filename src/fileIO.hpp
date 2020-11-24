@@ -1,35 +1,9 @@
 #include "list.hpp"
+#include <map>
+#include <cstring>
 #include <fstream>
-#include <vector>
-#include <functional>
 #pragma once
-// template<typename T>
-// ctn::List <T> fillList(const char* fileName,const char* token,std::function<T(const char*,const char*)> MakerT){
-//     ctn::List<T> list;
-//     std::ifstream file{fileName};
-//     std::cout << file.good() << std::endl;
-//     std::string s;
-    
-//     while (std::getline(file,s))
-//     {
-//         list.push_back(MakerT(s.c_str(), token));
-//     }
-//     file.close();
-//     return std::move(list);
-// }
-/*
-TODO:
-tentar uma list<list<rating[movieid,rating(pair?)]>> pra formar uma matriz de fatoracao
-*(sem necessidade de carregar o arquivo de usuarios e filmes no primeiro momento)
-cada linha sera um usuario
-cada usuario tera uma lista (linha da matriz(item da lista mae)) que contem o id do filme e o rating(isso sera mais facil de achar o id do filme em questao)
 
-(id,rating)
-
-(20,5)  (30,3)  (500,1) (120,4)
-(12,1)  (500,5) (40,3)  
-
-*/
 struct itemMatriz{
     unsigned int UserId;
     unsigned int MovieId;
@@ -39,38 +13,28 @@ struct itemMatriz{
     itemMatriz(unsigned int MovieId,unsigned short rating,unsigned int UserId):MovieId(MovieId),rating(rating),UserId(UserId){};
 
 };
-/*
-std vector deixa 0.1s a 0.2s mais rapido
->problema na implementacao da ctn::List
-*/
-// std::vector<std::vector<itemMatriz>> MatrizFatoracao(const char* fileName){
-//     std::vector<std::vector<itemMatriz>> list;
-//     std::vector<itemMatriz> linha;
 
-//     FILE* file;
-//     if(!(file = fopen(fileName,"r"))){
-//         std::cerr<<"Erro ao abrir o arquivo"<<std::endl;
-//         return list;
-//     }
-//     int userAtual{},userComparacao{1},movieId{},dumb; 
-//     float rating{};
-//     while(!feof(file))
-//     {   
-//         fscanf(file,"%d::%d::%f::%d",&userAtual,&movieId,&rating,&dumb);
-//         if(userAtual != userComparacao){
-//             userComparacao = userAtual;
-//             list.push_back(linha);
-//             linha.clear();
-//         }
-//         linha.push_back(itemMatriz(movieId,rating));
-//     }
-//     list.push_back(linha);
-//     fclose(file);
-//     return std::move(list);
-// }
-
-
-
+std::map<unsigned int,char*> MovieList(const char* fileName,const char* token = "::"){
+    std::map<unsigned int,char*> filmes;
+    std::ifstream file{fileName};
+    std::string s;
+    int id;
+    char* name;
+    while (std::getline(file,s))
+    {
+        
+        char str[strlen(s.c_str()+1)];
+        strcpy(str,s.c_str());
+        char *pch = strtok(str,token);
+        id = atoi(pch);
+        pch = strtok(NULL,token);
+        name = new char[strlen(pch)+1];
+        strcpy(name,pch);
+        filmes.insert({id,name});  
+    }
+    file.close();
+    return std::move(filmes);
+}
 ctn::List<ctn::List<itemMatriz>> MatrizFatoracao(const char* fileName){
     
     ctn::List<ctn::List<itemMatriz>> list;
@@ -97,12 +61,6 @@ ctn::List<ctn::List<itemMatriz>> MatrizFatoracao(const char* fileName){
     fclose(file);
     return std::move(list);
 }
-
-
-
-
-
-
 ctn::List<itemMatriz> UserRatings(const char* fileName,const unsigned short minimoRating = 1){
     ctn::List<itemMatriz> user;
     FILE * file;
@@ -125,4 +83,3 @@ ctn::List<itemMatriz> UserRatings(const char* fileName,const unsigned short mini
     fclose(file);
     return std::move(user);
 }
-
