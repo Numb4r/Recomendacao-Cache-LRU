@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <map>
 #include "fileIO.hpp"
 #include "list.hpp"
 #include "sorting.hpp"
@@ -62,60 +63,13 @@ ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score
     return aux.transfer<ctn::Stack<euclidian_score>>(K);
 }
 
-/*Essa funcao e mal otimizada ja que nao usa hashmap.Too bad */
-                            /* @deprecated */
-ctn::List<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> melhoresUsuarios,const int K = 20){
-    ctn::List<itemMatriz> Filmes;
-    for (auto i = melhoresUsuarios.head(); i != nullptr; i=i->next)
-    {
-        for (auto j = i->data.linha.head(); j != nullptr; j=j->next)
-        {
-            Filmes.push(j->data);
-        }
-        
-    }
-    sort::Selection<itemMatriz>(Filmes,[](itemMatriz v1,itemMatriz v2)->bool{
-        return v1.MovieId > v2.MovieId;
-    });
-    ctn::List<itemMatriz> MelhoresFilmes;
-    int filmeAtual = Filmes.front().MovieId;
-    float totalValue{};
-    
-    for (auto i = Filmes.head(); i != nullptr; i=i->next)
-    {
-        if(i->data.MovieId == filmeAtual){
-            
-            totalValue+=i->data.rating;
-            // std::cout<< i->data.rating << " = "<<totalValue<<std::endl;
-        }else {
-
-            // std::cout<<">"<<filmeAtual<<" - "<<totalValue<<std::endl;
-            if (totalValue!=0)
-                MelhoresFilmes.push(itemMatriz(filmeAtual,totalValue));
-            totalValue = 0;
-            filmeAtual=i->data.MovieId;
-        }
-    }
-    sort::Selection<itemMatriz>(MelhoresFilmes,[](itemMatriz v1,itemMatriz v2){
-        return v1.rating > v2.rating;
-    });
-    // MelhoresFilmes.show([](itemMatriz i){
-    //     std::cout<<i.MovieId<<" - "<<i.rating<<std::endl;
-    // });
-    return MelhoresFilmes.transfer<ctn::List<itemMatriz>>(K);
-}
-/*=========================== @deprecated ===========================*/
-
-/* Funcao com hashmap */
-
-#include <map>
 /*
 FIX: 
 - Existe uma PEQUENA chance do topo da pilha ser lixo de memoria quando usado o metodo Quicksort.
 - Executando novamente corrige o problema
 */
 
-ctn::List<itemMatriz> EncontrarKMelhoresFilmesH(ctn::List<euclidian_score> &melhoresUsuarios,ctn::List<itemMatriz> &User,const int &K = 20){
+ctn::List<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> &melhoresUsuarios,ctn::List<itemMatriz> &User,const int &K = 20){
     std::map<int,float> notaFilmes,userFilmes;
     ctn::List<itemMatriz> melhoresFilmes;
     
