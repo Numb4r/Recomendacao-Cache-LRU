@@ -56,22 +56,16 @@ ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score
             
         }
     }
-    
     sort::Selection<euclidian_score>(aux,[](euclidian_score var1,euclidian_score var2){
         return score(var1) < score(var2);
     });
     return aux.transfer<ctn::Stack<euclidian_score>>(K);
 }
 
-/*
-FIX: 
-- Existe uma PEQUENA chance do topo da pilha ser lixo de memoria quando usado o metodo Quicksort.
-- Executando novamente corrige o problema
-*/
-
 ctn::List<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> &melhoresUsuarios,ctn::List<itemMatriz> &User,const int &K = 20){
-    std::map<int,float> notaFilmes,userFilmes;
+    std::map<int,float> notaFilmes,userFilmes,melhoresFilmesMap;
     ctn::List<itemMatriz> melhoresFilmes;
+
     
     for (auto i = User.head() ; i != nullptr ; i=i->next)
     {
@@ -85,16 +79,12 @@ ctn::List<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> &melho
     {
         for (auto j = i->data.linha.head(); j != nullptr; j=j->next)
         {
-            
             if (userFilmes.find(j->data.MovieId)==userFilmes.end())
-            {
-                if (notaFilmes.find(j->data.MovieId)!=notaFilmes.end())
-                
-                    notaFilmes.at(j->data.MovieId) += media(j->data.rating,posicaoPilha);       
-                else
-                    notaFilmes.insert({j->data.MovieId,media(j->data.rating,posicaoPilha)});
-                
-            }
+                if (notaFilmes.find(j->data.MovieId)!=notaFilmes.end() &&
+                    notaFilmes.find(j->data.MovieId)->second >= std::floor(media(j->data.rating,posicaoPilha)))
+                        notaFilmes.at(j->data.MovieId) = j->data.rating;
+            else
+                notaFilmes.insert({j->data.MovieId,media(j->data.rating,posicaoPilha)});
         }
         posicaoPilha++;
     }
@@ -107,16 +97,12 @@ ctn::List<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> &melho
         max = vet[j].rating > max ? vet[j].rating : max;
         j++;
     }
-    // sort::Quick<itemMatriz>(vet,0,size_array,[](itemMatriz t1,itemMatriz t2){
-    //     return t1.rating >= t2.rating;
-    // });
     sort::radixsort(vet,size_array,max);
-
     for (size_t i = size_array-1; i >size_array-K ; i--)
     {
         melhoresFilmes.push(vet[i]);   
     }
-    return melhoresFilmes;
+    return melhoresFilmes.transfer<ctn::Queue<itemMatriz>>(K);
 
 }
 /*---------------------------------------------------------*/
