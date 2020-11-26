@@ -38,15 +38,21 @@ namespace ctn
                     table[hash]=  new H_item<TKey,TValue>(key,value);
                 }else
                 {
-                    for (auto i = table[hash]; i !=nullptr; i=i->next)
+                    H_item<TKey,TValue>* i = table[hash];
+                    while (i->next != nullptr)
                     {
-                        i = new H_item<TKey,TValue>(key,value);
+                        i=i->next;
                     }
-                    
+                    i->next = new H_item<TKey,TValue>(key,value);      
                 }
             }
             TValue at(const TKey &key){
-                return table[this->hashFunction(key)]->value;
+                auto item = table[hashFunction(key)];
+                while (item->key != key) 
+                {
+                    item = item->next;
+                }
+                return item->value;
             }
             H_item<TKey,TValue> *find(const TKey &key){                
                 if (table[hashFunction(key)]!= this->empty)
@@ -58,12 +64,26 @@ namespace ctn
             H_item<TKey,TValue> *nodeEmpty() const{
                 return empty;
             }
-            void remove(const TKey key) const{
+            void remove(const TKey key) const noexcept{
                 auto hash = hashFunction(key);
                 if (this->table[hash] != empty)
                 {
-                    delete table[hash];
-                    table[hash] = empty;
+                    H_item<TKey,TValue>* item = this->table[hash];
+                    H_item<TKey,TValue>* anterior;
+                    while (item!=nullptr && item->key != key)
+                    {
+                        anterior = item;
+                        item=item->next;
+                    }
+                    if (item != nullptr)
+                    {
+                        anterior->next = item->next;
+                        delete item;
+                        item = nullptr;
+                    }
+
+                    // delete table[hash];
+                    // table[hash] = empty;
                 }
                 
             }
