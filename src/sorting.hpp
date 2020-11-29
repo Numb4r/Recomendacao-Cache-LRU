@@ -1,7 +1,7 @@
+#pragma once
 #include "list.hpp"
 #include "matrix_analysis.hpp"
 
-#pragma once
 void CountSort(itemMatriz a[], int n, int exp);
 template <typename T>
 void swap(T &a,T &b){
