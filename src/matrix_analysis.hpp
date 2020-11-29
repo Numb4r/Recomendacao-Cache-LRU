@@ -62,7 +62,7 @@ ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score
     return aux.transfer<ctn::Stack<euclidian_score>>(K);
 }
 
-ctn::List<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> &melhoresUsuarios,ctn::List<itemMatriz> &User,const int &K = 20){
+ctn::Queue<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> &melhoresUsuarios,ctn::List<itemMatriz> &User,const int &K = 20){
     std::map<int,float> notaFilmes,userFilmes,melhoresFilmesMap;
     ctn::List<itemMatriz> melhoresFilmes;
 
