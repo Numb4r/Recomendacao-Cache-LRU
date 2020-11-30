@@ -26,6 +26,9 @@ public:
         }
         this->cache.insert({key,filmes});
     }
+    unsigned short maxSize()const {
+        return MAXTAM;
+    }
     ctn::Queue<itemMatriz>& getItem(int key){
         auto item{&cache.find(key)->second};
         if(item->counter!=0)
