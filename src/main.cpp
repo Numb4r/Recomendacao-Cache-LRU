@@ -14,11 +14,26 @@
 #define USERFILENAME    "ml-1m/dumb_user.dat"
 #define K 20
 using Matrix = ctn::List<ctn::List<itemMatriz>> ;
-
+char* fileUserPath{USERFILENAME};
+int cacheSize{};
+void argumentsCapture(const char** argv,int argc){
+    for (size_t i = 1; i < argc; i++)
+    {
+        if (strcmp("-userfile",argv[i])==0)
+        {
+            fileUserPath = new char[strlen(argv[i+1]+1)]();
+            strcpy(fileUserPath,argv[i+1]);
+            i++;
+        }else if (strcmp("-cachesize",argv[i])==0){
+            cacheSize=atoi(argv[i+1]);
+            i++;   
+        }
+    }
+}
 int main(int argc, char const *argv[])
 {  
+    argumentsCapture(argv,argc);
 
-    const char* fileUserPath= argc >= 2 ? argv[1] : USERFILENAME; 
     std::map<unsigned int,char*> filmesListNames = MovieList(MOVIESFILENAME);
     ctn::List<itemMatriz> User{UserRatings(fileUserPath)};
     ctn::List<euclidian_score> Notas;
@@ -68,15 +83,16 @@ int main(int argc, char const *argv[])
 
 
     Cache c_LRU = CreateCache(
-        User, /* Lista de filmes do usuario */
-        filmes, /* Lista melhores filmes */
-        User.size() /* Tamanho da cache */
+        User, /* Lista de filmes do usuario (key)*/
+        filmes, /* Lista melhores filmes (valor)*/
+        (cacheSize==0 ? User.size() : cacheSize) /* Tamanho maximo da cache */
     );
     
     
 
     std::cout<<"\n\tCache LRU"<<std::endl;
     /* Testes */
+    std::cout<<"Cache max size:"<<c_LRU.maxSize()<<std::endl;
     std::cout<<"Cache size:"<<c_LRU.cache.size()<<std::endl;
     
     
@@ -84,7 +100,7 @@ int main(int argc, char const *argv[])
     
 
     c_LRU.insertCache(1,filmes,true);
-    std::cout<<"Cache size apos a insercao e estouro da capacidade,aplicando a politica LRU:"<<c_LRU.cache.size()<<std::endl;
+    std::cout<<"Cache size apos a insercao,verificando um possivel estouro da capacidade e aplicando a politica LRU:"<<c_LRU.cache.size()<<std::endl;
     auto aux = c_LRU.getItem(1);
     std::cout<<"Verificando se foi adicionado a key mostrando o ultimo filme:"<<filmesListNames.at(aux.back().MovieId)<<std::endl;
     std::cout<<"Verificando se ouve a remocao da entrada menos utilizada:"<<(c_LRU.cache.find(594)==c_LRU.cache.end() ? "" :"nao")<<"removido"<<std::endl;//hardcoded
