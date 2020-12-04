@@ -12,6 +12,7 @@ struct euclidian_score
     int numeroDeFilmesSimilares;
     int numeroDeFilmesDiferentes;
     float distance;
+
     euclidian_score(ctn::List<itemMatriz> &linha,int numeroDeFilmesSimilares,int numeroDeFilmesDiferentes ,float distance)
      : linha(linha),numeroDeFilmesSimilares(numeroDeFilmesSimilares),numeroDeFilmesDiferentes(numeroDeFilmesDiferentes),distance(distance){}    
      euclidian_score operator=(const euclidian_score& e){
@@ -22,11 +23,8 @@ struct euclidian_score
      }
 };
 float score(euclidian_score &e){
-    return ((e.numeroDeFilmesSimilares/(1+(1*e.distance)))/(1+(1*e.distance)));
+    return e.numeroDeFilmesSimilares/pow(1+e.distance,2);
 }
-/* 
-TODO : Refatorar essa funcao com um metodo de ordenacao mais eficiente 
-*/
 ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score> &Notas,int K){
     ctn::Queue<euclidian_score> aux;
     int min = score(Notas.head()->data);
@@ -62,7 +60,10 @@ ctn::Stack<euclidian_score> EncontrarKMelhoresUsuarios(ctn::List<euclidian_score
     return aux.transfer<ctn::Stack<euclidian_score>>(K);
 }
 
-ctn::Queue<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> &melhoresUsuarios,ctn::List<itemMatriz> &User,const int &K = 20){
+ctn::Queue<itemMatriz> EncontrarKMelhoresFilmes(
+    ctn::List<euclidian_score> &melhoresUsuarios,ctn::List<itemMatriz> &User,std::map<int,int> filmesCache =  std::map<int,int>(),const int &K = 20){
+
+
     std::map<int,float> notaFilmes,userFilmes,melhoresFilmesMap;
     ctn::List<itemMatriz> melhoresFilmes;
 
@@ -88,15 +89,22 @@ ctn::Queue<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> &melh
         }
         posicaoPilha++;
     }
-    itemMatriz *vet = new itemMatriz[notaFilmes.size()];
-    int j{},max{},size_array{notaFilmes.size()};
+    itemMatriz *vet = new itemMatriz[notaFilmes.size()+  filmesCache.size()];
+    int j{},max{},size_array{notaFilmes.size() + filmesCache.size()};
 
+    for (auto &&i : filmesCache)
+    {
+        vet[j] = itemMatriz(i.first,i.second);
+        max = vet[j].rating > max ? vet[j].rating : max;
+        j++;
+    }
     for (auto &&i : notaFilmes)
     {
         vet[j] = itemMatriz(i.first,i.second);
         max = vet[j].rating > max ? vet[j].rating : max;
         j++;
     }
+    
     sort::radixsort(vet,size_array,max);
     for (size_t i = size_array-1; i >size_array-K ; i--)
     {
@@ -105,11 +113,7 @@ ctn::Queue<itemMatriz> EncontrarKMelhoresFilmes(ctn::List<euclidian_score> &melh
     return melhoresFilmes.transfer<ctn::Queue<itemMatriz>>(K);
 
 }
-/*---------------------------------------------------------*/
-/*
-TODO:
-Melhorara esse trecho com hashmap,retirando a necessidade do segundo for
-*/
+
 
 euclidian_score CalcularDistanciaEuclidiana(ctn::List<itemMatriz> &linha,ctn::List<itemMatriz> &User){
     int numeroDeFilmesSimilares{};
