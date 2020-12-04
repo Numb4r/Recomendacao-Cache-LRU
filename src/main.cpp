@@ -5,10 +5,9 @@
 #include "queue.hpp"
 #include "stack.hpp"
 #include "matrix_analysis.hpp"
-#include "sorting.hpp"
-#include "hashmap.hpp"
 #include "cache.hpp"
 #include <map>
+#include <vector>
 #define MATRIXFILENAME  "ml-1m/ratings.dat"
 #define MOVIESFILENAME  "ml-1m/movies.dat"
 #define USERFILENAME    "ml-1m/dumb_user.dat"
@@ -16,6 +15,7 @@
 using Matrix = ctn::List<ctn::List<itemMatriz>> ;
 char* fileUserPath{USERFILENAME};
 int cacheSize{};
+std::map<unsigned int,char*> filmesListNames = MovieList(MOVIESFILENAME);
 void argumentsCapture(const char** argv,int argc){
     for (size_t i = 1; i < argc; i++)
     {
@@ -30,81 +30,178 @@ void argumentsCapture(const char** argv,int argc){
         }
     }
 }
-int main(int argc, char const *argv[])
-{  
-    argumentsCapture(argv,argc);
-
-    std::map<unsigned int,char*> filmesListNames = MovieList(MOVIESFILENAME);
-    ctn::List<itemMatriz> User{UserRatings(fileUserPath)};
-    ctn::List<euclidian_score> Notas;
-    Timer t;
 
 
 
-    Matrix MatrixDeFatoracao{MatrizFatoracao(MATRIXFILENAME)} ;
-    t.ShowResult("Construcao da matriz de fatoracao");
 
 
+std::vector<int> verificaCache(ctn::List<itemMatriz> &UserEntry,Cache &c_LRU){
+    std::vector<int> listFilmesNaCache;
+    ctn::List<itemMatriz> newUser;
     
-
-
-
-    t.Reset();
-    for (auto i = MatrixDeFatoracao.head(); i != MatrixDeFatoracao.tail()->next; i=i->next)
+    for (auto i = UserEntry.head(); i !=nullptr; i=i->next)
     {
-        Notas.push(CalcularDistanciaEuclidiana(i->data,User));    
+        auto item{c_LRU.getItem(i->data.MovieId)};
+        if(item != nullptr ) {
+            
+            listFilmesNaCache.push_back(i->data.MovieId);
+            
+            
+        }else
+        {
+            newUser.push(i->data);
+        }
+        
     }
-    t.ShowResult("Calculo da distancia euclidiana");
+        
 
+    UserEntry.clear();
+        
 
-
-
-
-
-
-    t.Reset();
-    ctn::Stack<euclidian_score> PilhaMelhoresUsuarios{EncontrarKMelhoresUsuarios(Notas,K)};
-    t.ShowResult("Encontrando os K melhores usuarios");
-    PilhaMelhoresUsuarios.show([](euclidian_score i){
-        std::cout<<i.linha.front().UserId<<" - "<<i.numeroDeFilmesSimilares<<" - " <<i.numeroDeFilmesDiferentes<<" - "<< score(i)<<std::endl;
-    });
-
-
-
-
+    for (auto i = newUser.head(); i !=nullptr; i=i->next)
+    {
+        UserEntry.push(i->data);
+    }
+        
     
-    t.Reset();
-    ctn::Queue<itemMatriz> filmes= EncontrarKMelhoresFilmes(PilhaMelhoresUsuarios,User,K);
+    return listFilmesNaCache;
+}
+
+
+
+
+
+
+
+ ctn::Queue<itemMatriz> computarUsuario(ctn::List<itemMatriz> &UserEntry,Matrix &MatrixFatoracao,Cache &c_LRU){
+    std::map<int,int> mapaFilmesMatrizAtual;
+    if (c_LRU.size()!=0)
+    {
+        std::vector<int> listFilmesNaCache(verificaCache(UserEntry,c_LRU));
+        for (auto &&i :listFilmesNaCache )
+            for(auto j = c_LRU.getItem(i)->filmes.head();j!=nullptr;j=j->next )
+                if(mapaFilmesMatrizAtual.find(j->data.MovieId) == mapaFilmesMatrizAtual.end())
+                    mapaFilmesMatrizAtual.insert({j->data.MovieId,j->data.rating});
+                else if (mapaFilmesMatrizAtual.at(j->data.MovieId) < j->data.rating)
+                    mapaFilmesMatrizAtual.at(j->data.rating) = j->data.rating;
+    }
+    
+
+    ctn::List<euclidian_score> Notas;
+    for (auto i = MatrixFatoracao.head(); i != MatrixFatoracao.tail()->next; i=i->next)
+    {
+        Notas.push(CalcularDistanciaEuclidiana(i->data,UserEntry));    
+    }
+    ctn::Stack<euclidian_score> PilhaMelhoresUsuarios{EncontrarKMelhoresUsuarios(Notas,K)};
+    ctn::Queue<itemMatriz> filmes= EncontrarKMelhoresFilmes(PilhaMelhoresUsuarios,UserEntry,mapaFilmesMatrizAtual,K);
+
+     /*--------------------------------------------------------------*/
+    /* Descomente o  trecho abaixo para  imprimir na tela os filmes */
+   /*--------------------------------------------------------------*/
+    /*
+
     t.ShowResult("Encontrar os K Melhores filmes por hash");
-    filmes.show([filmesListNames](itemMatriz i){
+    filmes.show([](itemMatriz i){
         std::cout<<filmesListNames.at(i.MovieId)<< " - " << i.rating<<std::endl;
     });
+    
+    */
+
+     /*--------------------------------------------------------------*/
+    /* Descomente o  trecho acima para  imprimir na tela os filmes  */
+   /*--------------------------------------------------------------*/
 
 
 
-    Cache c_LRU = CreateCache(
-        User, /* Lista de filmes do usuario (key)*/
-        filmes, /* Lista melhores filmes (valor)*/
-        (cacheSize==0 ? User.size() : cacheSize) /* Tamanho maximo da cache */
-    );
+    
+    if (c_LRU.size()==0)
+    {
+        c_LRU = CreateCache(
+            UserEntry, /* Lista de filmes do usuario (key)*/
+            filmes, /* Lista melhores filmes (valor)*/
+            (cacheSize==0 ? UserEntry.size() : cacheSize) /* Tamanho maximo da cache */
+        );
+    }else
+    {
+        for (auto i = filmes.head(); i != nullptr; i=i->next)
+        {
+            // std::cout<<i->data.MovieId<<std::endl;
+            c_LRU.insertCache(i->data.MovieId,filmes);
+        }
+    }
+    return filmes;
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+int main(int argc, char const *argv[])
+{  
+    
+    argumentsCapture(argv,argc);
     
     
+    ctn::List<itemMatriz> User{UserRatings(fileUserPath)};
+    ctn::List<euclidian_score> Notas;
+    Cache c_LRU;
+    Timer t;
+    Matrix MatrixDeFatoracao{MatrizFatoracao(MATRIXFILENAME)} ;
 
-    std::cout<<"\n\tCache LRU"<<std::endl;
-    /* Testes */
-    std::cout<<"Cache max size:"<<c_LRU.maxSize()<<std::endl;
-    std::cout<<"Cache size:"<<c_LRU.cache.size()<<std::endl;
+
+
+    computarUsuario(User,MatrixDeFatoracao,c_LRU);
+    t.ShowResult("Tempo para executar sem cache: ");
+    User.push(itemMatriz(3,4));
+    User.push(itemMatriz(7,4));
+    User.push(itemMatriz(6,4));
+    User.push(itemMatriz(4,4));
+    User.push(itemMatriz(20,4));
+
+
+
+    t.Reset();
+    computarUsuario(User,MatrixDeFatoracao,c_LRU);
+    t.ShowResult("Tempo para executar com cache: ");
+
+    User.push(itemMatriz(10,4));
+
+
+
+    t.Reset();
+    computarUsuario(User,MatrixDeFatoracao,c_LRU);
+    t.ShowResult("Tempo para executar com cache: ");
+
+
+    User.push(itemMatriz(20,4));
+
+    t.Reset();
+    computarUsuario(User,MatrixDeFatoracao,c_LRU);
+    t.ShowResult("Tempo para executar com cache: ");
+
+    User.push(itemMatriz(11,4));
+
+    t.Reset();
+    computarUsuario(User,MatrixDeFatoracao,c_LRU);
+    t.ShowResult("Tempo para executar com cache: ");
+
+    User.push(itemMatriz(13,4));
+
+    t.Reset();
+    auto filmes = computarUsuario(User,MatrixDeFatoracao,c_LRU);
+    t.ShowResult("Tempo para executar com cache: ");
+    
+    std::cout<<"Cache size: "<<c_LRU.size()<<std::endl;
     
     
-    c_LRU.getItem(594);
     
-
-    c_LRU.insertCache(1,filmes,true);
-    std::cout<<"Cache size apos a insercao,verificando um possivel estouro da capacidade e aplicando a politica LRU:"<<c_LRU.cache.size()<<std::endl;
-    auto aux = c_LRU.getItem(1);
-    std::cout<<"Verificando se foi adicionado a key mostrando o ultimo filme:"<<filmesListNames.at(aux.back().MovieId)<<std::endl;
-    std::cout<<"Verificando se ouve a remocao da entrada menos utilizada:"<<(c_LRU.cache.find(594)==c_LRU.cache.end() ? "" :"nao")<<"removido"<<std::endl;//hardcoded
-
-
+    
     return 0;
 }
