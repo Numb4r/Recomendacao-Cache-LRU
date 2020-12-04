@@ -153,12 +153,13 @@ namespace ctn
             return *this;
         }
 
-        List<T> &operator=(const List &&obj){//Move assignment
+        List<T> &operator=(List &&obj){//Move assignment
             if(this != &obj && obj.HEAD != nullptr){
                 clear();
                 HEAD = obj.HEAD;
                 TAIL = obj.TAIL;
                 obj.HEAD = obj.TAIL = nullptr;
+                obj.length = 0;
                 length = obj.length;
             }
             return *this;
