@@ -106,7 +106,7 @@ ctn::Queue<itemMatriz> EncontrarKMelhoresFilmes(
     }
     
     sort::radixsort(vet,size_array,max);
-    for (size_t i = size_array-1; i >size_array-K ; i--)
+    for (size_t i = size_array-1; i >size_array-(K+1) ; i--)
     {
         melhoresFilmes.push(vet[i]);   
     }
