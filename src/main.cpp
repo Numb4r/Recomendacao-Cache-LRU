@@ -55,13 +55,17 @@ std::vector<int> verificaCache(ctn::List<itemMatriz> &UserEntry,Cache &c_LRU){
     }
         
 
-    UserEntry.clear();
+    if (newUser.size() > 0)
+    {
+        UserEntry.clear();
         
 
-    for (auto i = newUser.head(); i !=nullptr; i=i->next)
-    {
-        UserEntry.push(i->data);
+        for (auto i = newUser.head(); i !=nullptr; i=i->next)
+        {
+            UserEntry.push(i->data);
+        }
     }
+    
         
     
     return listFilmesNaCache;
@@ -95,21 +99,12 @@ std::vector<int> verificaCache(ctn::List<itemMatriz> &UserEntry,Cache &c_LRU){
     ctn::Stack<euclidian_score> PilhaMelhoresUsuarios{EncontrarKMelhoresUsuarios(Notas,K)};
     ctn::Queue<itemMatriz> filmes= EncontrarKMelhoresFilmes(PilhaMelhoresUsuarios,UserEntry,mapaFilmesMatrizAtual,K);
 
-     /*--------------------------------------------------------------*/
-    /* Descomente o  trecho abaixo para  imprimir na tela os filmes */
-   /*--------------------------------------------------------------*/
-    /*
-
-    t.ShowResult("Encontrar os K Melhores filmes por hash");
-    filmes.show([](itemMatriz i){
-        std::cout<<filmesListNames.at(i.MovieId)<< " - " << i.rating<<std::endl;
-    });
+     
+    // filmes.show([](itemMatriz i){
+    //     std::cout<<filmesListNames.at(i.MovieId)<< " - " << i.rating<<std::endl;
     
-    */
+    // });
 
-     /*--------------------------------------------------------------*/
-    /* Descomente o  trecho acima para  imprimir na tela os filmes  */
-   /*--------------------------------------------------------------*/
 
 
 
@@ -123,11 +118,15 @@ std::vector<int> verificaCache(ctn::List<itemMatriz> &UserEntry,Cache &c_LRU){
         );
     }else
     {
-        for (auto i = filmes.head(); i != nullptr; i=i->next)
-        {
-            // std::cout<<i->data.MovieId<<std::endl;
-            c_LRU.insertCache(i->data.MovieId,filmes);
-        }
+        if(UserEntry.size() > 0)
+            for (auto i = UserEntry.head(); i != nullptr; i=i->next)
+            {
+                
+                c_LRU.insertCache(
+                    i->data.MovieId, /*Lista de filmes do usuario (key) */
+                    filmes /* Lista melhores filmes  (valor) */
+                );
+            }
     }
     return filmes;
     
@@ -159,6 +158,7 @@ int main(int argc, char const *argv[])
 
     computarUsuario(User,MatrixDeFatoracao,c_LRU);
     t.ShowResult("Tempo para executar sem cache: ");
+    
     User.push(itemMatriz(3,4));
     User.push(itemMatriz(7,4));
     User.push(itemMatriz(6,4));
