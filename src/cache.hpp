@@ -23,14 +23,13 @@ public:
     std::map<int,C_Item> cache;
     void insertCache(int key,ctn::Queue<itemMatriz> filmes,bool debug = false){
         C_Item item{filmes} ;
-        
-        if(cache.size()>=MAXTAM){
+        if (cache.find(key)==cache.end())
+        {
+            if(cache.size()>=MAXTAM){
                 int p {this->LRU()};
                 if(debug)        
                     std::cout<<"removido:"<<p<<std::endl;
-        }
-        if (cache.find(key)==cache.end())
-        {
+            }
             this->cache.insert({key,filmes});
         }else
         {
